@@ -1,0 +1,11 @@
+[Package]
+name: "iterutils"
+version: "0.1"
+author: "Dennis Felsing"
+description: "Functional operations for iterators and slices, similar to sequtils"
+license: "MIT"
+
+srcDir: "src"
+
+[Deps]
+requires: "nimrod > 0.9.4"
