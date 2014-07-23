@@ -54,6 +54,8 @@
 ##            map(proc(x): int = x div 16):
 ##     echo i
 
+# TODO: Can we get rid of duplication by unifying the iterators and procs?
+
 type Iterable*[T] = (iterator: T) | TSlice[T]
   ## Everything that can be iterated over, iterators and slices so far.
 
@@ -67,6 +69,20 @@ proc toIter*[T](s: TSlice[T]): iterator: T =
 proc toIter*[T](i: iterator: T): iterator: T =
   ## Nop
   i
+
+iterator revItems*(a) =
+  for i in countdown(high(a), low(a)):
+    yield a[i]
+
+iterator revPairs*(a) =
+  ## iterates over the items of a `seq`, `array` or `string` in reverse,
+  ## yielding ``(index, a[index])``.
+  ##
+  ##   var xs = @[1,3,5,7,9,11]
+  ##   for i,x in xs.revPairs:
+  ##     echo i, " ", x
+  for i in countdown(high(a), low(a)):
+    yield (i, a[i])
 
 proc map*[T,S](i: Iterable[T], f: proc(x: T): S): iterator: S =
   ## Returns an iterator which applies `f` to every item in `i`.
