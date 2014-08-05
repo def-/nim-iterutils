@@ -180,6 +180,7 @@ proc delete*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
       if pos notin first..last:
         yield x
       inc pos
+  result = it
 
 iterator delete*[T](i: Iterable[T], first = 0, last = 0): T =
   let i = toIter(i)
