@@ -167,7 +167,7 @@ iterator zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): tuple[a: T, b:
       break
     yield result
 
-proc take*[T](i: Iterable[T], first = 0, last = 0]): iterator: T =
+proc take*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
   ## Yields the items in `i` from index `first` to `last`.
   ##
   ## .. code-block:: nimrod
