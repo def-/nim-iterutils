@@ -150,7 +150,7 @@ proc zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): iterator: tuple[a:
   ##     echo x
   let i = toIter(i)
   let j = toIter(j)
-  iterator it: T {.closure.} =
+  iterator it: tuple[a: T, b: S] {.closure.} =
     while true:
       let result = (i(), j())
       if finished(i) or finished(j):
