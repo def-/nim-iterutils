@@ -176,7 +176,7 @@ proc take*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
   let i = toIter(i)
   var pos = 0
   iterator it: T {.closure.} =
-    for j in i():
+    for x in i():
       if pos in first..last:
         yield x
       inc pos
