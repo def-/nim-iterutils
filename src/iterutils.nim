@@ -168,7 +168,7 @@ iterator zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): tuple[a: T, b:
     yield result
 
 proc slice*[T](i: Iterable[T], first = 0, last = 0, step = 1): iterator: T =
-  ## Yields the items in `i` from index `first` to `last`.
+  ## Yields every `step` item in `i` from index `first` to `last`.
   ##
   ## .. code-block:: nimrod
   ##   for i in slice(0..100, 10, 20)
