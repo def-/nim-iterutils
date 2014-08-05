@@ -167,11 +167,11 @@ iterator zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): tuple[a: T, b:
       break
     yield result
 
-proc take*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
+proc slice*[T](i: Iterable[T], first = 0, last = 0, step = 1): iterator: T =
   ## Yields the items in `i` from index `first` to `last`.
   ##
   ## .. code-block:: nimrod
-  ##   for i in take(0..100, 10, 20)
+  ##   for i in slice(0..100, 10, 20)
   ##     echo i
   let i = toIter(i)
   var pos = 0
@@ -179,18 +179,18 @@ proc take*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
     for x in i():
       if pos > last:
         break
-      elif pos >= first:
+      elif pos >= first and (pos - first) mod step == 0:
         yield x
       inc pos
   result = it
 
-iterator take*[T](i: Iterable[T], first = 0, last = 0): T =
+iterator slice*[T](i: Iterable[T], first = 0, last = 0, step = 1): T =
   let i = toIter(i)
   var pos = 0
   for x in i():
     if pos > last:
       break
-    elif pos >= first:
+    elif pos >= first and (pos - first) mod step == 0:
       yield x
     inc pos
 
