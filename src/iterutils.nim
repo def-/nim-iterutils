@@ -97,7 +97,7 @@ proc map*[T,S](i: Iterable[T], f: proc(x: T): S): iterator: S =
   iterator it: S {.closure.} =
     for x in i():
       yield f(x)
-  return it
+  result = it
 
 iterator map*[T,S](i: Iterable[T], f: proc(x: T): S): S =
   let i = toIter(i)
@@ -116,7 +116,7 @@ proc filter*[T](i: Iterable[T], f: proc(x: T): bool): iterator: T =
     for x in i():
       if f(x):
         yield x
-  return it
+  result = it
 
 iterator filter*[T](i: Iterable[T], f: proc(x: T): bool): T =
   let i = toIter(i)
