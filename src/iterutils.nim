@@ -3,7 +3,7 @@
 ##
 ## The iterators can easily be combined:
 ##
-## .. code-block:: nimrod
+## .. code-block:: nim
 ##   for i in filter(map(filter(2..10, proc(x: int): bool = x mod 2 == 0),
 ##            proc(x: int): int = x * 2), proc(x: int): bool = x mod 8 == 0):
 ##     echo i
@@ -21,7 +21,7 @@
 ##
 ## Raw implementation with a loop:
 ##
-## .. code-block:: nimrod
+## .. code-block:: nim
 ##   # 0.2 s
 ##   for i in 1..100_000_000:
 ##     if i mod 2 == 0:
@@ -32,7 +32,7 @@
 ##
 ## Using sequtils:
 ##
-## .. code-block:: nimrod
+## .. code-block:: nim
 ##   # 5.3 s
 ##   for i in toSeq(1..100_000_000).
 ##            filter(proc(x): bool = x mod 2 == 0).
@@ -44,7 +44,7 @@
 ##
 ## Using iterutils:
 ##
-## .. code-block:: nimrod
+## .. code-block:: nim
 ##   # 1.8 s
 ##   for i in (1..100_000_000).
 ##            filter(proc(x): bool = x mod 2 == 0).
@@ -56,10 +56,10 @@
 
 # TODO: Can we get rid of duplication by unifying the iterators and procs?
 
-type Iterable*[T] = (iterator: T) | TSlice[T]
+type Iterable*[T] = (iterator: T) | Slice[T]
   ## Everything that can be iterated over, iterators and slices so far.
 
-proc toIter*[T](s: TSlice[T]): iterator: T =
+proc toIter*[T](s: Slice[T]): iterator: T =
   ## Iterate over a slice.
   iterator it: T {.closure.} =
     for x in s.a..s.b:
@@ -70,11 +70,11 @@ proc toIter*[T](i: iterator: T): iterator: T =
   ## Nop
   i
 
-iterator revItems*(a) =
+iterator revItems*[T](a: iterator: T): T =
   for i in countdown(high(a), low(a)):
     yield a[i]
 
-iterator revPairs*(a) =
+iterator revPairs*[T](a: iterator: T): tuple[key: int, val: T] =
   ## iterates over the items of a `seq`, `array` or `string` in reverse,
   ## yielding ``(index, a[index])``.
   ##
@@ -87,7 +87,7 @@ iterator revPairs*(a) =
 proc map*[T,S](i: Iterable[T], f: proc(x: T): S): iterator: S =
   ## Returns an iterator which applies `f` to every item in `i`.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for x in map(2..10, proc(x): int = x * 2):
   ##     echo x
   ##
@@ -108,7 +108,7 @@ proc filter*[T](i: Iterable[T], f: proc(x: T): bool): iterator: T =
   ## Iterates through an iterator and yields every item that fulfills the
   ## predicate `f`.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for x in filter(1..11, proc(x): bool = x mod 2 == 0):
   ##     echo x
   let i = toIter(i)
@@ -127,7 +127,7 @@ iterator filter*[T](i: Iterable[T], f: proc(x: T): bool): T =
 proc concat*[T](its: varargs[T, toIter]): iterator: T =
   ## Takes several iterators' items and returns a new iterator from them.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for i in concat(1..4, 20..23):
   ##     echo i
   iterator it: T {.closure.} =
@@ -141,11 +141,11 @@ iterator concat*[T](its: varargs[T, toIter]): auto =
     for x in i():
       yield x
 
-proc zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): iterator: tuple[a: T, b: S] =
+proc zip*[T,S](i: (iterator: T) | Slice[T], j: Iterable[S]): iterator: tuple[a: T, b: S] =
   ## Iterates through both iterators at the same time, returning a tuple of
   ## both elements as long as neither of the iterators has finished.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for x in zip(1..4, 20..24):
   ##     echo x
   let i = toIter(i)
@@ -158,7 +158,7 @@ proc zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): iterator: tuple[a:
       yield result
   result = it
 
-iterator zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): tuple[a: T, b: S] =
+iterator zip*[T,S](i: (iterator: T) | Slice[T], j: Iterable[S]): tuple[a: T, b: S] =
   let i = toIter(i)
   let j = toIter(j)
   while true:
@@ -170,7 +170,7 @@ iterator zip*[T,S](i: (iterator: T) | TSlice[T], j: Iterable[S]): tuple[a: T, b:
 proc slice*[T](i: Iterable[T], first = 0, last = 0, step = 1): iterator: T =
   ## Yields every `step` item in `i` from index `first` to `last`.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for i in slice(0..100, 10, 20)
   ##     echo i
   let i = toIter(i)
@@ -197,7 +197,7 @@ iterator slice*[T](i: Iterable[T], first = 0, last = 0, step = 1): T =
 proc delete*[T](i: Iterable[T], first = 0, last = 0): iterator: T =
   ## Yields the items in `i` except for the ones between `first` and `last`.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   for x in delete(1..10, 4, 8):
   ##     echo x
   let i = toIter(i)
@@ -222,7 +222,7 @@ proc foldl*[T,S](i: Iterable[T], f: proc(x: S, y: T): S, y: S): S =
   ##
   ## As the initial value of the accumulation `y` is used.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   echo foldl(1..10, proc(x,y: int): int = x + y, 0)
   let i = toIter(i)
   result = y
@@ -234,7 +234,7 @@ proc foldl*[T](i: Iterable[T], f: proc(x, y: T): T): T =
   ##
   ## The iterator is required to return at least a single element.
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block:: nim
   ##   echo foldl(1..10, proc(x,y: int): int = x + y)
   let i = toIter(i)
   result = i()
@@ -242,26 +242,28 @@ proc foldl*[T](i: Iterable[T], f: proc(x, y: T): T): T =
     result = f(result, x)
 
 when isMainModule:
-  import sequtils, future
+  import future
+  from sequtils import toSeq
+  #import sequtils, future
 
   block: # map 1
-    var it = toSeq(map(toIter(2..10), proc(x): int = x * 2))
+    var it = toSeq(map(toIter(2..10), proc(x: int): int = x * 2))
     assert it == @[4, 6, 8, 10, 12, 14, 16, 18, 20]
 
   block: # map 2
-    var it = toSeq(map(2..10, proc(x): int = x * 2))
+    var it = toSeq(map(2..10, proc(x: int): int = x * 2))
     assert it == @[4, 6, 8, 10, 12, 14, 16, 18, 20]
 
   block: # map 3
-    var it = toSeq((1..10).map(proc(x): string = "foo: " & $x))
+    var it = toSeq((1..10).map(proc(x: int): string = "foo: " & $x))
     assert it == @["foo: 1", "foo: 2", "foo: 3", "foo: 4", "foo: 5", "foo: 6", "foo: 7", "foo: 8", "foo: 9", "foo: 10"]
 
   block: # filter 1
-    var it = toSeq(filter(toIter(1..11), proc(x): bool = x mod 2 == 0))
+    var it = toSeq(filter(toIter(1..11), proc(x: int): bool = x mod 2 == 0))
     assert it == @[2, 4, 6, 8, 10]
 
   block: # filter 2
-    var it = toSeq(filter(1..11, proc(x): bool = x mod 2 == 0))
+    var it = toSeq(filter(1..11, proc(x: int): bool = x mod 2 == 0))
     assert it == @[2, 4, 6, 8, 10]
 
   block: # concat 1
@@ -297,7 +299,7 @@ when isMainModule:
     assert it == @[8, 16]
 
   block: # combination 2
-    var it = toSeq (2..10).filter(proc(x): bool = x mod 2 == 0).map(proc(x): int = x * 2).filter(proc(x): bool = x mod 8 == 0)
+    var it = toSeq((2..10).filter(proc(x: int): bool = x mod 2 == 0).map(proc(x: int): int = x * 2).filter(proc(x: int): bool = x mod 8 == 0))
     assert it == @[8, 16]
 
   block: # combination 3
