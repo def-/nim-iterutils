@@ -241,8 +241,15 @@ proc foldl*[T](i: Iterable[T], f: proc(x, y: T): T): T =
   for x in i():
     result = f(result, x)
 
+template toClosure*(i): auto =
+  ## Wrap an inline iterator in a first-class closure iterator.
+  iterator j: type(i) {.closure.} =
+    for x in i:
+      yield x
+  j
+
 when isMainModule:
-  import future
+  import future, tables
   from sequtils import toSeq
 
   block: # map 1
@@ -307,3 +314,16 @@ when isMainModule:
   #  var b = a.map((x: int) => x * 2)
   #  var c = toSeq(b.map((x: int) => x + 2))
   #  assert c == @[6, 10, 14, 18, 22]
+
+  block: # wrap inline iterator
+    let d = {1: 4, 2: 5, 3: 6}.toTable
+
+    iterator myiteropt[T](anotheriter: iterator: T): T =
+      for i in 0..<3:
+        for j in anotheriter():
+          yield j
+
+    var s = newSeq[int]()
+    for i in myiteropt(toClosure(values(d))): s.add(i)
+    for i in myiteropt(toClosure(2..10)): s.add(i)
+    assert s == @[4, 5, 6, 2, 3, 4, 5, 6, 7, 8, 9, 10]
