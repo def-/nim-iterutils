@@ -320,10 +320,12 @@ when isMainModule:
 
     iterator myiteropt[T](anotheriter: iterator: T): T =
       for i in 0..<3:
-        for j in anotheriter():
+        var iter: type(anotheriter)
+        iter.deepCopy(anotheriter)
+        for j in iter():
           yield j
 
     var s = newSeq[int]()
     for i in myiteropt(toClosure(values(d))): s.add(i)
     for i in myiteropt(toClosure(2..10)): s.add(i)
-    assert s == @[4, 5, 6, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    assert s == @[4, 5, 6, 4, 5, 6, 4, 5, 6, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10]
