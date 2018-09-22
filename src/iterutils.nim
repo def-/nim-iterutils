@@ -1,58 +1,9 @@
 ## This module imlements operations for iterators and slices. You can see it as
 ## a lazy version of `sequtils`.
 ##
-## The iterators can easily be combined:
+## The iterators can easily be combined, see tests/tests.nim
 ##
-## .. code-block:: nim
-##   for i in filter(map(filter(2..10, proc(x: int): bool = x mod 2 == 0),
-##            proc(x: int): int = x * 2), proc(x: int): bool = x mod 8 == 0):
-##     echo i
-##
-##   var s = toSeq (2..10).filter(proc(x): bool = x mod 2 == 0).
-##           map(proc(x): int = x * 2).filter(proc(x): bool = x mod 8 == 0)
-##   echo s
-##
-##   var a = (2..10).filter(proc(x: int): bool = x mod 2 == 0)
-##   var b = a.map((x: int) => x * 2)
-##   for i in b.map((x: int) => x + 2):
-##     echo i
-##
-## Performance example:
-##
-## Raw implementation with a loop:
-##
-## .. code-block:: nim
-##   # 0.2 s
-##   for i in 1..100_000_000:
-##     if i mod 2 == 0:
-##       if i mod 4 == 0:
-##         if i mod 8 == 0:
-##           if i mod 16000 == 0:
-##             echo i div 16
-##
-## Using sequtils:
-##
-## .. code-block:: nim
-##   # 5.3 s
-##   for i in toSeq(1..100_000_000).
-##            filter(proc(x): bool = x mod 2 == 0).
-##            filter(proc(x): bool = x mod 4 == 0).
-##            filter(proc(x): bool = x mod 8 == 0).
-##            filter(proc(x): bool = x mod 16000 == 0).
-##            map(proc(x): int = x div 16):
-##     echo i
-##
-## Using iterutils:
-##
-## .. code-block:: nim
-##   # 1.8 s
-##   for i in (1..100_000_000).
-##            filter(proc(x): bool = x mod 2 == 0).
-##            filter(proc(x): bool = x mod 4 == 0).
-##            filter(proc(x): bool = x mod 8 == 0).
-##            filter(proc(x): bool = x mod 16000 == 0).
-##            map(proc(x): int = x div 16):
-##     echo i
+## Performance example: see tests/performance.nim
 
 # TODO: Can we get rid of duplication by unifying the iterators and procs?
 
