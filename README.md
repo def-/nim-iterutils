@@ -1,8 +1,8 @@
 ## docs
 see https://hookrace.net/nim-iterutils/iterutils.html
 
-## limitations
-composition doesn't work right now: see https://github.com/def-/nim-iterutils/issues/4 and https://github.com/def-/nim-iterutils/blob/53f4a30e57f01cd8cf9d5b1dd22053eac82b25f2/src/iterutils.nim#L303
-
 ## related packages
 see https://github.com/alehander42/zero-functional/issues/21
+
+## changelog
+composition now works thanks to https://github.com/nim-lang/Nim/commit/c554c2a581dacbde7f85c19a066b68ca0c68da3e
