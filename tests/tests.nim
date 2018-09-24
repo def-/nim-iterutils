@@ -1,4 +1,4 @@
-import iterutils
+import ../src/iterutils
 from sequtils import toSeq
 import sugar
 
