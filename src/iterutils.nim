@@ -192,6 +192,29 @@ proc foldl*[T](i: Iterable[T], f: proc(x, y: T): T): T =
   for x in i():
     result = f(result, x)
 
+proc take*[T](i: Iterable[T], n: Natural): iterator: T =
+  ## Yields the first `n` items in `i`.
+  ##
+  ## .. code-block:: nim
+  ##   for x in take(1..10, 5):
+  ##     echo x
+  let i = toIter(i)
+  var pos = 0
+  iterator it: T {.closure.} =
+    for x in i():
+      if pos < n:
+        yield x
+        inc pos
+  result = it
+
+iterator take*[T](i: Iterable[T], n: Natural): T =
+  let i = toIter(i)
+  var pos = 0
+  for x in i():
+    if pos < n:
+      yield x
+      inc pos
+
 template toClosure*(i): auto =
   ## Wrap an inline iterator in a first-class closure iterator.
   iterator j: type(i) {.closure.} =
@@ -251,6 +274,18 @@ when isMainModule:
     var it = foldl(1..10, proc(x,y: int): int = x + y)
     assert it == 55
 
+  block: # take 1
+    var it = toSeq((1..10).take(5))
+    assert it == @[1, 2, 3, 4, 5]
+  
+  block: # take 2
+    var it = toSeq((1..6).take(8))
+    assert it == @[1, 2, 3, 4, 5, 6]
+  
+  block: # take 3
+    var it = toSeq((1..10).take(0))
+    assert it == @[]
+
   # TODO: Currently fail
   block: # combination 1
     var it = toSeq(filter(map(filter(2..10, proc(x: int): bool = x mod 2 == 0), proc(x: int): int = x * 2), proc(x: int): bool = x mod 8 == 0))
@@ -265,6 +300,10 @@ when isMainModule:
     var b = a.map((x: int) => x * 2)
     var c = toSeq(b.map((x: int) => x + 2))
     assert c == @[6, 10, 14, 18, 22]
+
+  block: # combination 4
+    var it = toSeq((1..100).map(proc(x: int): int = x * 2).filter(proc(x: int): bool = x mod 6 == 0).take(5))
+    assert it == @[6, 12, 18, 24, 30]
 
   block: # wrap inline iterator
     let d = {1: 4, 2: 5, 3: 6}.toTable
