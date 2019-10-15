@@ -306,7 +306,7 @@ when isMainModule:
     assert it == @[6, 12, 18, 24, 30]
 
   block: # wrap inline iterator
-    let d = {1: 4, 2: 5, 3: 6}.toTable
+    let d = [4, 5, 6]
 
     iterator myiteropt[T](anotheriter: iterator: T): T =
       for i in 0..<3:
@@ -316,6 +316,6 @@ when isMainModule:
           yield j
 
     var s = newSeq[int]()
-    for i in myiteropt(toClosure(values(d))): s.add(i)
+    for i in myiteropt(toClosure(items(d))): s.add(i)
     for i in myiteropt(toClosure(2..10)): s.add(i)
     assert s == @[4, 5, 6, 4, 5, 6, 4, 5, 6, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10]
