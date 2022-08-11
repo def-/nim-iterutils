@@ -223,7 +223,7 @@ template toClosure*(i): auto =
   j
 
 when isMainModule:
-  import future, tables
+  import sugar, tables
   from sequtils import toSeq
 
   block: # map 1
